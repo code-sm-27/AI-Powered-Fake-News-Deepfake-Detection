@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake News Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Fake News Detection</h2>
+        <label for="newsUrl">Enter News Article URL:</label>
+        <input type="text" id="newsUrl" placeholder="Paste article URL here...">
+        <button onclick="analyzeNews()">Analyze</button>
+        
+        <div class="result" id="result" style="display: none;">
+            <h3>Analysis Results</h3>
+            <p><strong>Adjusted Score:</strong> <span id="adjustedScore"></span></p>
+            <p><strong>Fact Check Result:</strong> <span id="factCheckResult"></span></p>
+            <p><strong>Key Sentences:</strong></p>
+            <ul id="keySentences"></ul>
+            <p><strong>Recognized Entities:</strong> <span id="recognizedEntities"></span></p>
+            <p><strong>Sentiment Score:</strong> <span id="sentimentScore"></span></p>
+            <p><strong>Source Credibility:</strong> <span id="sourceCredibility"></span></p>
+        </div>
+    </div>
+    
+    <script>
+        function analyzeNews() {
+            const url = document.getElementById("newsUrl").value;
+            if (!url) {
+                alert("Please enter a news article URL.");
+                return;
+            }
+            fetch("/analyze", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("adjustedScore").textContent = data.adjusted_score;
+                document.getElementById("factCheckResult").textContent = data.fact_check_result;
+                document.getElementById("recognizedEntities").textContent = data.recognized_entities.join(", ") || "None";
+                document.getElementById("sentimentScore").textContent = data.sentiment_score;
+                document.getElementById("sourceCredibility").textContent = data.source_credibility;
+                
+                const keySentencesList = document.getElementById("keySentences");
+                keySentencesList.innerHTML = "";
+                data.key_sentences.forEach(sentence => {
+                    let li = document.createElement("li");
+                    li.textContent = sentence;
+                    keySentencesList.appendChild(li);
+                });
+                
+                document.getElementById("result").style.display = "block";
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>
